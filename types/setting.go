@@ -280,7 +280,7 @@ var (
 
 	SettingDefinitionBackupTarget = SettingDefinition{
 		DisplayName: "Backup Target",
-		Description: "The endpoint used to access the backupstore. NFS and S3 are supported.",
+		Description: "The endpoint used to access the backupstore. NFS, CIFS and S3 are supported.",
 		Category:    SettingCategoryBackup,
 		Type:        SettingTypeString,
 		Required:    false,
@@ -1455,7 +1455,7 @@ func ValidateAndUnmarshalToleration(s string) (*v1.Toleration, error) {
 
 	if strings.Contains(parts[0], "=") {
 		pair := strings.Split(parts[0], "=")
-		if len(parts) != 2 {
+		if len(pair) != 2 {
 			return nil, fmt.Errorf("invalid toleration setting %v: invalid key/value pair", parts[0])
 		}
 		toleration.Key = strings.Trim(pair[0], " ")
