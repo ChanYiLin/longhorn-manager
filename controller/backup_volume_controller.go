@@ -445,6 +445,17 @@ func (bvc *BackupVolumeController) isBackupNotBeingUsedForVolumeRestore(backupVo
 		return false, errors.Wrapf(err, "failed to list volumes for backup volume %v for checking restore status", backupVolumeName)
 	}
 	for _, v := range volumes {
+		engines, err := bvc.ds.ListVolumeEngines(v.Name)
+		if err != nil {
+			return false, errors.Wrapf(err, "failed to list engines for volume %v for checking restore status", v.Name)
+		}
+		for _, e := range engines {
+			for _, status := range e.Status.RestoreStatus {
+				if status.IsRestoring {
+					return false, fmt.Errorf("backups cannot be deleted due to the ongoing volume %v restoration", v.Name)
+				}
+			}
+		}
 		if types.GetCondition(v.Status.Conditions, longhorn.VolumeConditionTypeRestore).Status == longhorn.ConditionStatusTrue {
 			return false, fmt.Errorf("backups cannot be deleted due to the ongoing volume %v restoration", v.Name)
 		}
