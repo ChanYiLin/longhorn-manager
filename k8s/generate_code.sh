@@ -15,9 +15,10 @@ CRDS_DIR="crds"
 CONTROLLER_TOOLS_VERSION="v0.7.0"
 KUSTOMIZE_VERSION="kustomize/v3.10.0"
 
-if [[ -z "${GOPATH}" ]]; then
-  GOPATH=~/go
-fi
+# if [[ -z "${GOPATH}" ]]; then
+#   GOPATH=~/go
+# fi
+GOPATH=~/go
 
 # https://github.com/kubernetes/code-generator/blob/v0.18.0/generate-groups.sh
 if [[ ! -d "${GOPATH}/src/k8s.io/code-generator" ]]; then
