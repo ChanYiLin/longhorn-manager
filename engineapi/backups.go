@@ -32,14 +32,16 @@ type BackupTargetClient struct {
 	Image      string
 	URL        string
 	Credential map[string]string
+	Options    map[string]string
 }
 
 // NewBackupTargetClient returns the backup target client
-func NewBackupTargetClient(engineImage, url string, credential map[string]string) *BackupTargetClient {
+func NewBackupTargetClient(engineImage, url string, credential map[string]string, options map[string]string) *BackupTargetClient {
 	return &BackupTargetClient{
 		Image:      engineImage,
 		URL:        url,
 		Credential: credential,
+		Options:    options,
 	}
 }
 
@@ -71,6 +73,32 @@ func NewBackupTargetClientFromBackupTarget(backupTarget *longhorn.BackupTarget, 
 
 func (btc *BackupTargetClient) LonghornEngineBinary() string {
 	return filepath.Join(types.GetEngineBinaryDirectoryOnHostForImage(btc.Image), "longhorn")
+}
+
+func getBackupMountOptionsEnv(backupTarget string, options map[string]string) ([]string, error) {
+	envs := []string{}
+	backupType, err := util.CheckBackupType(backupTarget)
+	if err != nil {
+		return envs, err
+	}
+
+	if options == nil {
+		return envs, nil
+	}
+
+	if !types.BackupStoreRequireMountOptions(backupType) || options == nil {
+		return envs, nil
+	}
+
+	switch backupType {
+	case types.BackupStoreTypeNFS:
+		envs = append(envs, fmt.Sprintf("%s=%s", types.FSTimeo, options[types.FSTimeo]))
+		envs = append(envs, fmt.Sprintf("%s=%s", types.FSRetry, options[types.FSRetry]))
+	case types.BackupStoreTypeCIFS:
+		envs = append(envs, fmt.Sprintf("%s=%s", types.FSTimeo, options[types.FSTimeo]))
+		envs = append(envs, fmt.Sprintf("%s=%s", types.FSRetry, options[types.FSRetry]))
+	}
+	return envs, nil
 }
 
 // getBackupCredentialEnv returns the environment variables as KEY=VALUE in string slice
@@ -128,6 +156,13 @@ func (btc *BackupTargetClient) ExecuteEngineBinary(args ...string) (string, erro
 	if err != nil {
 		return "", err
 	}
+
+	optionsEnv, err := getBackupMountOptionsEnv(btc.URL, btc.Options)
+	if err != nil {
+		return "", err
+	}
+	envs = append(envs, optionsEnv...)
+
 	return util.Execute(envs, btc.LonghornEngineBinary(), args...)
 }
 
@@ -136,6 +171,13 @@ func (btc *BackupTargetClient) ExecuteEngineBinaryWithTimeout(timeout time.Durat
 	if err != nil {
 		return "", err
 	}
+
+	optionsEnv, err := getBackupMountOptionsEnv(btc.URL, btc.Options)
+	if err != nil {
+		return "", err
+	}
+	envs = append(envs, optionsEnv...)
+
 	return util.ExecuteWithTimeout(timeout, envs, btc.LonghornEngineBinary(), args...)
 }
 
@@ -144,6 +186,13 @@ func (btc *BackupTargetClient) ExecuteEngineBinaryWithoutTimeout(args ...string)
 	if err != nil {
 		return "", err
 	}
+
+	optionsEnv, err := getBackupMountOptionsEnv(btc.URL, btc.Options)
+	if err != nil {
+		return "", err
+	}
+	envs = append(envs, optionsEnv...)
+
 	return util.ExecuteWithoutTimeout(envs, btc.LonghornEngineBinary(), args...)
 }
 
@@ -314,7 +363,7 @@ func (btc *BackupTargetClient) BackupCleanUpAllMounts() (err error) {
 // TODO: Deprecated, replaced by gRPC proxy
 func (e *EngineBinary) SnapshotBackup(engine *longhorn.Engine, snapName, backupName, backupTarget,
 	backingImageName, backingImageChecksum, compressionMethod string, concurrentLimit int, storageClassName string,
-	labels, credential map[string]string) (string, string, error) {
+	labels, credential map[string]string, options map[string]string) (string, string, error) {
 	if snapName == etypes.VolumeHeadName {
 		return "", "", fmt.Errorf("invalid operation: cannot backup %v", etypes.VolumeHeadName)
 	}
@@ -353,6 +402,13 @@ func (e *EngineBinary) SnapshotBackup(engine *longhorn.Engine, snapName, backupN
 	if err != nil {
 		return "", "", err
 	}
+
+	optionsEnvs, err := getBackupMountOptionsEnv(backupTarget, options)
+	if err != nil {
+		return "", "", err
+	}
+	envs = append(envs, optionsEnvs...)
+
 	output, err := e.ExecuteEngineBinaryWithoutTimeout(envs, args...)
 	if err != nil {
 		return "", "", err
@@ -416,7 +472,7 @@ func ConvertEngineBackupState(state string) longhorn.BackupState {
 // BackupRestore calls engine binary
 // TODO: Deprecated, replaced by gRPC proxy
 func (e *EngineBinary) BackupRestore(engine *longhorn.Engine, backupTarget, backupName, backupVolumeName,
-	lastRestored string, credential map[string]string, concurrentLimit int) error {
+	lastRestored string, credential map[string]string, concurrentLimit int, options map[string]string) error {
 	backup := backupstore.EncodeBackupURL(backupName, backupVolumeName, backupTarget)
 
 	// get environment variables if backup for s3
@@ -424,6 +480,12 @@ func (e *EngineBinary) BackupRestore(engine *longhorn.Engine, backupTarget, back
 	if err != nil {
 		return err
 	}
+
+	optionsEnvs, err := getBackupMountOptionsEnv(backupTarget, options)
+	if err != nil {
+		return err
+	}
+	envs = append(envs, optionsEnvs...)
 
 	args := []string{"backup", "restore", backup}
 	// TODO: Remove this compatible code and update the function signature

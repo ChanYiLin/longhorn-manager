@@ -112,6 +112,8 @@ const (
 	SettingNameReplicaDiskSoftAntiAffinity                              = SettingName("replica-disk-soft-anti-affinity")
 	SettingNameAllowEmptyNodeSelectorVolume                             = SettingName("allow-empty-node-selector-volume")
 	SettingNameAllowEmptyDiskSelectorVolume                             = SettingName("allow-empty-disk-selector-volume")
+	SettingNameBackupstoreFSMountTimeO                                  = SettingName("backupstore-fs-mount-timeo")
+	SettingNameBackupstoreFSMountRetry                                  = SettingName("backupstore-fs-mount-retry")
 )
 
 var (
@@ -187,6 +189,8 @@ var (
 		SettingNameReplicaDiskSoftAntiAffinity,
 		SettingNameAllowEmptyNodeSelectorVolume,
 		SettingNameAllowEmptyDiskSelectorVolume,
+		SettingNameBackupstoreFSMountTimeO,
+		SettingNameBackupstoreFSMountRetry,
 	}
 )
 
@@ -288,6 +292,8 @@ var (
 		SettingNameReplicaDiskSoftAntiAffinity:                              SettingDefinitionReplicaDiskSoftAntiAffinity,
 		SettingNameAllowEmptyNodeSelectorVolume:                             SettingDefinitionAllowEmptyNodeSelectorVolume,
 		SettingNameAllowEmptyDiskSelectorVolume:                             SettingDefinitionAllowEmptyDiskSelectorVolume,
+		SettingNameBackupstoreFSMountTimeO:                                  SettingDefinitionBackupstoreFSMountTimeO,
+		SettingNameBackupstoreFSMountRetry:                                  SettingDefinitionBackupstoreFSMountRetry,
 	}
 
 	SettingDefinitionBackupTarget = SettingDefinition{
@@ -1144,6 +1150,26 @@ var (
 		ReadOnly:    false,
 		Default:     "true",
 	}
+
+	SettingDefinitionBackupstoreFSMountTimeO = SettingDefinition{
+		DisplayName: "Backupstore filesystem mount option timeo",
+		Description: "TimeO option for mounting filesystem-based backupstore like nfs",
+		Category:    SettingCategoryBackup,
+		Type:        SettingTypeInt,
+		Required:    true,
+		ReadOnly:    false,
+		Default:     "300",
+	}
+
+	SettingDefinitionBackupstoreFSMountRetry = SettingDefinition{
+		DisplayName: "Backupstore filesystem mount option retry",
+		Description: "Retry option for mounting filesystem-based backupstore like nfs",
+		Category:    SettingCategoryBackup,
+		Type:        SettingTypeInt,
+		Required:    true,
+		ReadOnly:    false,
+		Default:     "2",
+	}
 )
 
 type NodeDownPodDeletionPolicy string
@@ -1319,6 +1345,10 @@ func ValidateSetting(name, value string) (err error) {
 	case SettingNameRecurringFailedJobsHistoryLimit:
 		fallthrough
 	case SettingNameFailedBackupTTL:
+		fallthrough
+	case SettingNameBackupstoreFSMountTimeO:
+		fallthrough
+	case SettingNameBackupstoreFSMountRetry:
 		fallthrough
 	case SettingNameV2DataEngineHugepageLimit:
 		value, err := strconv.Atoi(value)

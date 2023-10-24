@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -253,7 +254,22 @@ func newBackupTargetClient(ds *datastore.DataStore, backupTarget *longhorn.Backu
 			return nil, err
 		}
 	}
-	return engineapi.NewBackupTargetClient(engineImage, backupTarget.Spec.BackupTargetURL, credential), nil
+
+	options := map[string]string{}
+	if types.BackupStoreRequireMountOptions(backupType) {
+		fsTimeO, err := ds.GetSettingAsInt(types.SettingNameBackupstoreFSMountTimeO)
+		if err != nil {
+			return nil, err
+		}
+		fsRetry, err := ds.GetSettingAsInt(types.SettingNameBackupstoreFSMountRetry)
+		if err != nil {
+			return nil, err
+		}
+		options[types.FSTimeo] = strconv.FormatInt(fsTimeO, 10)
+		options[types.FSRetry] = strconv.FormatInt(fsRetry, 10)
+	}
+
+	return engineapi.NewBackupTargetClient(engineImage, backupTarget.Spec.BackupTargetURL, credential, options), nil
 }
 
 func newBackupTargetClientFromDefaultEngineImage(ds *datastore.DataStore, backupTarget *longhorn.BackupTarget) (*engineapi.BackupTargetClient, error) {

@@ -14,7 +14,7 @@ import (
 
 func (p *Proxy) SnapshotBackup(e *longhorn.Engine, snapshotName, backupName, backupTarget,
 	backingImageName, backingImageChecksum, compressionMethod string, concurrentLimit int, storageClassName string,
-	labels, credential map[string]string) (string, string, error) {
+	labels, credential map[string]string, options map[string]string) (string, string, error) {
 	if snapshotName == etypes.VolumeHeadName {
 		return "", "", fmt.Errorf("invalid operation: cannot backup %v", etypes.VolumeHeadName)
 	}
@@ -32,15 +32,22 @@ func (p *Proxy) SnapshotBackup(e *longhorn.Engine, snapshotName, backupName, bac
 		return "", "", errors.Errorf("could not find snapshot '%s' to backup, engine '%s'", snapshotName, e.Name)
 	}
 
-	// get environment variables if backup for s3
+	envs := []string{}
 	credentialEnv, err := getBackupCredentialEnv(backupTarget, credential)
 	if err != nil {
 		return "", "", err
 	}
+	envs = append(envs, credentialEnv...)
+
+	optionsEnv, err := getBackupMountOptionsEnv(backupTarget, options)
+	if err != nil {
+		return "", "", err
+	}
+	envs = append(envs, optionsEnv...)
 
 	backupID, replicaAddress, err := p.grpcClient.SnapshotBackup(string(e.Spec.BackendStoreDriver), e.Name,
 		e.Spec.VolumeName, p.DirectToURL(e), backupName, snapshotName, backupTarget, backingImageName,
-		backingImageChecksum, compressionMethod, concurrentLimit, storageClassName, labels, credentialEnv,
+		backingImageChecksum, compressionMethod, concurrentLimit, storageClassName, labels, envs,
 	)
 	if err != nil {
 		return "", "", err
@@ -61,7 +68,7 @@ func (p *Proxy) SnapshotBackupStatus(e *longhorn.Engine, backupName, replicaAddr
 }
 
 func (p *Proxy) BackupRestore(e *longhorn.Engine, backupTarget, backupName, backupVolumeName, lastRestored string,
-	credential map[string]string, concurrentLimit int) error {
+	credential map[string]string, concurrentLimit int, options map[string]string) error {
 	backupURL := backupstore.EncodeBackupURL(backupName, backupVolumeName, backupTarget)
 
 	// get environment variables if backup for s3
@@ -69,6 +76,13 @@ func (p *Proxy) BackupRestore(e *longhorn.Engine, backupTarget, backupName, back
 	if err != nil {
 		return err
 	}
+
+	optionsEnvs, err := getBackupMountOptionsEnv(backupTarget, options)
+	if err != nil {
+		return err
+	}
+
+	envs = append(envs, optionsEnvs...)
 
 	return p.grpcClient.BackupRestore(string(e.Spec.BackendStoreDriver), e.Name, e.Spec.VolumeName, p.DirectToURL(e),
 		backupURL, backupTarget, backupVolumeName, envs, concurrentLimit)

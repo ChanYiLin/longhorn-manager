@@ -218,6 +218,7 @@ const (
 
 	BackupStoreTypeS3     = "s3"
 	BackupStoreTypeCIFS   = "cifs"
+	BackupStoreTypeNFS    = "nfs"
 	BackupStoreTypeAZBlob = "azblob"
 
 	AWSIAMRoleAnnotation = "iam.amazonaws.com/role"
@@ -229,6 +230,9 @@ const (
 
 	CIFSUsername = "CIFS_USERNAME"
 	CIFSPassword = "CIFS_PASSWORD"
+
+	FSTimeo = "FS_TIMEO"
+	FSRetry = "FS_RETRY"
 
 	AZBlobAccountName = "AZBLOB_ACCOUNT_NAME"
 	AZBlobAccountKey  = "AZBLOB_ACCOUNT_KEY"
@@ -986,6 +990,10 @@ func CreateCniAnnotationFromSetting(storageNetwork *longhorn.Setting) string {
 
 	storageNetworkSplit := strings.Split(storageNetwork.Value, "/")
 	return fmt.Sprintf("[{\"namespace\": \"%s\", \"name\": \"%s\", \"interface\": \"%s\"}]", storageNetworkSplit[0], storageNetworkSplit[1], StorageNetworkInterface)
+}
+
+func BackupStoreRequireMountOptions(backupType string) bool {
+	return backupType == BackupStoreTypeCIFS || backupType == BackupStoreTypeNFS
 }
 
 func BackupStoreRequireCredential(backupType string) bool {
