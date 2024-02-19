@@ -49,7 +49,7 @@ require (
 	github.com/longhorn/go-iscsi-helper v0.0.0-20240207150711-0713d1c9f5d1
 	github.com/longhorn/go-spdk-helper v0.0.0-20240219034107-a6d23f96da54
 	github.com/longhorn/longhorn-engine v1.6.0
-	github.com/longhorn/longhorn-instance-manager v1.6.0-dev-20240105.0.20240219053144-677fbd99cc56
+	github.com/longhorn/longhorn-instance-manager v1.6.1-0.20240219091348-48aa52a5fbd9
 	github.com/longhorn/longhorn-share-manager v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.17.0
@@ -60,7 +60,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli v1.22.14
-	golang.org/x/mod v0.13.0
+	golang.org/x/mod v0.14.0
 	golang.org/x/net v0.20.0
 	golang.org/x/sys v0.16.0
 	golang.org/x/time v0.3.0
@@ -92,14 +92,9 @@ require (
 	github.com/shirou/gopsutil/v3 v3.23.7 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	go.etcd.io/bbolt v1.3.8 // indirect
-<<<<<<< HEAD
-	golang.org/x/exp v0.0.0-20230725012225-302865e7556b // indirect
-	golang.org/x/tools v0.14.0 // indirect
-=======
 	go.uber.org/goleak v1.3.0 // indirect
 	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848 // indirect
 	golang.org/x/tools v0.16.0 // indirect
->>>>>>> a5680430 (feat(volume): remount volume if it becomes read only)
 	google.golang.org/genproto/googleapis/api v0.0.0-20231212172506-995d672761c0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240108191215-35c7eff3a6b1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
@@ -128,10 +123,7 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gammazero/deque v0.2.1 // indirect
 	github.com/gammazero/workerpool v1.1.3 // indirect
-<<<<<<< HEAD
 	github.com/go-co-op/gocron v1.18.0
-=======
->>>>>>> a5680430 (feat(volume): remount volume if it becomes read only)
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
@@ -196,7 +188,7 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/oauth2 v0.13.0 // indirect
-	golang.org/x/sync v0.4.0
+	golang.org/x/sync v0.5.0
 	golang.org/x/term v0.16.0 // indirect
 	golang.org/x/text v0.14.0
 	google.golang.org/appengine v1.6.8 // indirect
@@ -204,7 +196,6 @@ require (
 	google.golang.org/protobuf v1.32.0
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiserver v0.28.5 // indirect
 	k8s.io/cloud-provider v0.0.0 // indirect
 	k8s.io/component-base v0.28.5 // indirect
