@@ -178,6 +178,7 @@ const (
 	LonghornLabelValueIgnored = "ignored"
 
 	LonghornLabelExportFromVolume                 = "export-from-volume"
+	LonghornLabelCloneFromBackingImage            = "clone"
 	LonghornLabelSnapshotForExportingBackingImage = "for-exporting-backing-image"
 
 	KubernetesFailureDomainRegionLabelKey = "failure-domain.beta.kubernetes.io/region"

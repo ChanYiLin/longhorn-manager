@@ -46,6 +46,8 @@ type BackingImageSpec struct {
 	SourceType BackingImageDataSourceType `json:"sourceType"`
 	// +optional
 	SourceParameters map[string]string `json:"sourceParameters"`
+	// +optional
+	Secret string `json:"secret"`
 }
 
 // BackingImageStatus defines the observed state of the Longhorn backing image status
