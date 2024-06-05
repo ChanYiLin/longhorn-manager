@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 
@@ -360,6 +361,16 @@ func (c *BackingImageManagerController) cleanupBackingImageManager(bim *longhorn
 			}
 		}
 	}
+
+	// delete in progress record of this manager from the inProgressReplenishingMap
+	// each manager only controls only one disk
+	diskUUID := bim.Spec.DiskUUID
+	for biNameDiskID := range c.inProgressReplenishingMap {
+		if strings.Contains(biNameDiskID, diskUUID) {
+			delete(c.inProgressReplenishingMap, biNameDiskID)
+		}
+	}
+
 	if c.isMonitoring(bim.Name) {
 		c.stopMonitoring(bim.Name)
 	}

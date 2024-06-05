@@ -1440,7 +1440,7 @@ var (
 		Type:        SettingTypeInt,
 		Required:    true,
 		ReadOnly:    false,
-		Default:     "1",
+		Default:     "3",
 		ValueIntRange: map[string]int{
 			ValueIntRangeMinimum: 1,
 		},
