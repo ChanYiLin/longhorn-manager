@@ -2,6 +2,8 @@ module github.com/longhorn/longhorn-manager
 
 go 1.22.2
 
+replace github.com/longhorn/backing-image-manager v1.7.0-dev.0.20240625050424-d5cdb2615297 => github.com/chanyilin/backing-image-manager v1.4.0-rc1.0.20240627091534-a3e46ee088b3
+
 // Replace directives are required for dependencies in this section because:
 // - This module imports k8s.io/kubernetes.
 // - The development for all of these dependencies is done at kubernetes/staging and then synced to other repos.
@@ -60,7 +62,7 @@ require (
 	github.com/kubernetes-csi/csi-lib-utils v0.6.1
 	github.com/longhorn/backing-image-manager v1.7.0-dev.0.20240625050424-d5cdb2615297
 	github.com/longhorn/backupstore v0.0.0-20240624084713-e98e31ebcebb
-	github.com/longhorn/go-common-libs v0.0.0-20240625070844-d22ff30a7739
+	github.com/longhorn/go-common-libs v0.0.0-20240627075631-d78642cff5e1
 	github.com/longhorn/go-iscsi-helper v0.0.0-20240624090318-a8ef86edd9a5
 	github.com/longhorn/go-spdk-helper v0.0.0-20240625071858-89fcb1c09841
 	github.com/longhorn/longhorn-engine v1.7.0-dev.0.20240625050518-004f204f31da

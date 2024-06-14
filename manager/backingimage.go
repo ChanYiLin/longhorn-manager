@@ -86,7 +86,14 @@ func (m *VolumeManager) GetDefaultBackingImageManagersByDiskUUID(diskUUID string
 	return nil, fmt.Errorf("default backing image manager for disk %v is not found", diskUUID)
 }
 
-func (m *VolumeManager) CreateBackingImage(name, checksum, sourceType string, parameters map[string]string) (bi *longhorn.BackingImage, err error) {
+func (m *VolumeManager) CreateBackingImage(name, checksum, sourceType string, parameters map[string]string, secret, secretNamespace string) (bi *longhorn.BackingImage, err error) {
+	if secret != "" || secretNamespace != "" {
+		_, err := m.ds.GetSecretRO(secretNamespace, secret)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to get secret %v in namespace %v for the backing image %v", secret, secretNamespace, name)
+		}
+	}
+
 	bi = &longhorn.BackingImage{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   name,
@@ -97,6 +104,8 @@ func (m *VolumeManager) CreateBackingImage(name, checksum, sourceType string, pa
 			Checksum:         checksum,
 			SourceType:       longhorn.BackingImageDataSourceType(sourceType),
 			SourceParameters: parameters,
+			Secret:           secret,
+			SecretNamespace:  secretNamespace,
 		},
 	}
 	if bi, err = m.ds.CreateBackingImage(bi); err != nil {

@@ -52,7 +52,7 @@ func (s *Server) BackingImageCreate(rw http.ResponseWriter, req *http.Request) e
 		return err
 	}
 
-	bi, err := s.m.CreateBackingImage(input.Name, input.ExpectedChecksum, input.SourceType, input.Parameters)
+	bi, err := s.m.CreateBackingImage(input.Name, input.ExpectedChecksum, input.SourceType, input.Parameters, input.Secret, input.SecretNamespace)
 	if err != nil {
 		return errors.Wrapf(err, "failed to create backing image %v from source type %v with parameters %+v", input.Name, input.SourceType, input.Parameters)
 	}
