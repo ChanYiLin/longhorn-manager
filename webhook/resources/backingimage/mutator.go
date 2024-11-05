@@ -185,6 +185,11 @@ func (b *backingImageMutator) Update(request *admission.Request, oldObj runtime.
 		}
 	}
 
+	if oldBackingImage.Spec.DataEngine != backingImage.Spec.DataEngine {
+		err := fmt.Errorf("changing data engine for BackingImage %v is not supported", oldBackingImage.Name)
+		return nil, werror.NewInvalidError(err.Error(), "")
+	}
+
 	var patchOps admission.PatchOps
 
 	var err error

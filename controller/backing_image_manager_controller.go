@@ -303,6 +303,7 @@ func (c *BackingImageManagerController) syncBackingImageManager(key string) (err
 		bim.Status.BackingImageFileMap = map[string]longhorn.BackingImageFileInfo{}
 	}
 
+	// Jack If the current node is down or disk is migrated, update all the bi in the status map to unknown and return
 	node, diskName, err := c.ds.GetReadyDiskNode(bim.Spec.DiskUUID)
 	if err != nil && !types.ErrorIsNotFound(err) {
 		return err
@@ -332,10 +333,12 @@ func (c *BackingImageManagerController) syncBackingImageManager(key string) (err
 		c.backoffMap.Store(bim.Name, backoff)
 	}
 
+	// sync pod
 	if err := c.syncBackingImageManagerPod(bim, backoff); err != nil {
 		return err
 	}
 
+	// sync backing image files
 	if err := c.handleBackingImageFiles(bim, backoff); err != nil {
 		return err
 	}
@@ -656,6 +659,8 @@ func (c *BackingImageManagerController) prepareBackingImageFiles(currentBIM *lon
 		err = errors.Wrap(err, "failed to prepare backing image files")
 	}()
 
+	// iterate manager spec backingImages
+	// if it doesn't exists, get the backingImage from other manager
 	for biName := range currentBIM.Spec.BackingImages {
 		log := bimLog.WithFields(logrus.Fields{"backingImage": biName})
 
